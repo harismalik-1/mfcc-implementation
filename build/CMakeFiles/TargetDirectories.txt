@@ -1,0 +1,4 @@
+/home/haris/Desktop/kscale_residency/asr/build/CMakeFiles/mfcc_lib.dir
+/home/haris/Desktop/kscale_residency/asr/build/CMakeFiles/test_mfcc.dir
+/home/haris/Desktop/kscale_residency/asr/build/CMakeFiles/edit_cache.dir
+/home/haris/Desktop/kscale_residency/asr/build/CMakeFiles/rebuild_cache.dir

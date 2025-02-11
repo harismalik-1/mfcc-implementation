@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/test_mfcc.dir/tests/test_mfcc.c.o -o test_mfcc  libmfcc_lib.a -lfftw3f -lm

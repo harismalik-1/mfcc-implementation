@@ -1,0 +1,7 @@
+setup.py
+mfcc.egg-info/PKG-INFO
+mfcc.egg-info/SOURCES.txt
+mfcc.egg-info/dependency_links.txt
+mfcc.egg-info/top_level.txt
+src/mfcc.c
+src/mfcc_wrapper.c
