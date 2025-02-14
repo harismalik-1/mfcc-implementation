@@ -312,28 +312,36 @@ float* compute_mfcc(float* audio_signal, int signal_length, MFCCConfig* config) 
                                              config->mel_scale_type,
                                              config->normalize_mel);
     
-    // Apply filterbank and compute log energy
+    // Calculate total number of coefficients (n_mfcc * num_frames)
+    int total_coefficients = config->n_mfcc * num_frames;
+    
+    // Allocate memory for all frames' MFCCs
+    float* result = (float*)malloc(total_coefficients * sizeof(float));
     float* mel_energies = (float*)malloc(config->n_mels * sizeof(float));
-    apply_filterbank(power_specs[0], filterbank, config->n_mels, 
-                    config->frame_length, mel_energies);
     
-    // Take log of mel energies
-    float ref_power = 1.0f;
-    float min_power = 1e-10f;  // librosa's default amin
-    for (int i = 0; i < config->n_mels; i++) {
-        // Match librosa's power_to_db conversion
-        float val = fmaxf(mel_energies[i], min_power);
-        mel_energies[i] = 10.0f * log10f(val);
+    // Process each frame
+    for (int frame = 0; frame < num_frames; frame++) {
+        // Apply filterbank and compute log energy for current frame
+        apply_filterbank(power_specs[frame], filterbank, config->n_mels, 
+                        config->frame_length, mel_energies);
         
-        // Apply top_db clipping
-        if (mel_energies[i] < -TOP_DB) {
-            mel_energies[i] = -TOP_DB;
+        // Take log of mel energies
+        float min_power = 1e-10f;  // librosa's default amin
+        for (int i = 0; i < config->n_mels; i++) {
+            // Match librosa's power_to_db conversion
+            float val = fmaxf(mel_energies[i], min_power);
+            mel_energies[i] = 10.0f * log10f(val);
+            
+            // Apply top_db clipping
+            if (mel_energies[i] < -TOP_DB) {
+                mel_energies[i] = -TOP_DB;
+            }
         }
+        
+        // Apply DCT to get MFCC features for current frame
+        apply_dct(mel_energies, &result[frame * config->n_mfcc], 
+                 config->n_mels, config->n_mfcc);
     }
-    
-    // Apply DCT to get final MFCC features
-    float* result = (float*)malloc(config->n_mfcc * sizeof(float));
-    apply_dct(mel_energies, result, config->n_mels, config->n_mfcc);
     
     // Clean up
     free(mel_energies);

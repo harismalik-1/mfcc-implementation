@@ -37,10 +37,18 @@ static PyObject* compute_mfcc_wrapper(PyObject* self, PyObject* args) {
     // Compute MFCCs
     float* mfcc_features = compute_mfcc(signal, signal_length, &config);
     
-    // Convert to Python list
-    PyObject* result = PyList_New(n_mfcc);
-    for (int i = 0; i < n_mfcc; i++) {
-        PyList_SetItem(result, i, PyFloat_FromDouble(mfcc_features[i]));
+    // Calculate number of frames
+    int num_frames = 1 + (signal_length - config.frame_length) / config.frame_step;
+    
+    // Create a list of lists for the results
+    PyObject* result = PyList_New(num_frames);
+    for (int frame = 0; frame < num_frames; frame++) {
+        PyObject* frame_features = PyList_New(n_mfcc);
+        for (int i = 0; i < n_mfcc; i++) {
+            PyList_SetItem(frame_features, i, 
+                          PyFloat_FromDouble(mfcc_features[frame * n_mfcc + i]));
+        }
+        PyList_SetItem(result, frame, frame_features);
     }
     
     // Clean up
